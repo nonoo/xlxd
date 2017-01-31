@@ -22,8 +22,13 @@ for ($i=0;$i<$Reflector->StationCount();$i++) {
    if ($odd == "#FFFFFF") { $odd = "#F1FAFA"; } else { $odd = "#FFFFFF"; }
    echo '
   <tr height="30" bgcolor="'.$odd.'" onMouseOver="this.bgColor=\'#FFFFCA\';" onMouseOut="this.bgColor=\''.$odd.'\';">
-   <td align="center" width="35">';
-   echo ($i==0 ? '<img src="./img/radio-waves-hi.png" />' : $i+1);
+   <td align="center" valign="middle" width="35">';
+   if ($i==0 && $Reflector->Stations[$i]->GetLastHeardTime() > (time() - 60)) {
+      echo '<img src="./img/tx.gif" style="margin-top:3px;" height="20"/>';
+   }
+   else {
+      echo ($i+1);
+   }
    
    
    echo '</td>
@@ -42,11 +47,7 @@ for ($i=0;$i<$Reflector->StationCount();$i++) {
    }
    echo '</td>
    <td width="150">'.@date("d.m.Y H:i", $Reflector->Stations[$i]->GetLastHeardTime()).'</td>
-   <td align="center" width="30">';
-   if ($Reflector->Stations[$i]->GetPeer() == $Reflector->GetReflectorName()) {
-      echo trim($Reflector->GetModuleOfNode($Reflector->Stations[$i]->GetVia()));
-   }
-   echo '</td>
+   <td align="center" width="30">'.$Reflector->Stations[$i]->GetModule().'</td>
  </tr>';
    if ($i == 39) { $i = $Reflector->StationCount()+1; }
 }
@@ -66,6 +67,7 @@ for ($i=0;$i<$Reflector->StationCount();$i++) {
 <?php 
 
 $Modules = $Reflector->GetModules();
+sort($Modules, SORT_STRING);
 echo '
  <tr>';
 for ($i=0;$i<count($Modules);$i++) {
@@ -91,10 +93,12 @@ echo '
 </tr>
 <tr bgcolor="#FFFFFF" style="padding:0px;">';
 
+$GlobalPositions = array();
+
 for ($i=0;$i<count($Modules);$i++) {
-    
-    $Users = $Reflector->GetCallSignsInModules($Modules[$i]);
-    echo '
+
+   $Users = $Reflector->GetNodesInModulesByID($Modules[$i]);
+   echo '
    <td valign="top" style="border:0px;padding:0px;">
    
       <table width="100" border="0" style="padding:0px;margin:0px;">';
@@ -103,14 +107,9 @@ for ($i=0;$i<count($Modules);$i++) {
    $UserCheckedArray = array();
    
    for ($j=0;$j<count($Users);$j++) {
+      
       if ($odd == "#FFFFFF") { $odd = "#F1FAFA"; } else { $odd = "#FFFFFF"; }
-      if (in_array($Users[$j], $UserCheckedArray)) {
-         $CurrentPositions = array_keys($UserCheckedArray,$Users[$j]);
-         $Displayname = $Users[$j].'-'.$Reflector->GetSuffixOfRepeater($Users[$j], $Modules[$i], max($CurrentPositions)+1);
-      }
-      else {
-         $Displayname = $Users[$j].'-'.$Reflector->GetSuffixOfRepeater($Users[$j], $Modules[$i]);
-      }
+      $Displayname = $Reflector->GetCallsignAndSuffixByID($Users[$j]);
       echo '
             <tr height="25" bgcolor="'.$odd.'" onMouseOver="this.bgColor=\'#FFFFCA\';" onMouseOut="this.bgColor=\''.$odd.'\';">
                <td valign="top" style="border-bottom:1px #C1DAD7 solid;"><a href="http://www.aprs.fi/'.$Displayname.'" class="pl" target="_blank">'.$Displayname.'</a> </td>

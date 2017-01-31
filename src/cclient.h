@@ -56,7 +56,6 @@ public:
     bool HasModule(void) const                          { return m_Callsign.HasModule(); }
     char GetModule(void) const                          { return m_Callsign.GetModule(); }
     char GetReflectorModule(void) const                 { return m_ReflectorModule; }
-    virtual bool HasThisReflectorModule(char m) const   { return (m_ReflectorModule == m); }
    
     // set
     void SetModule(char c)                              { m_Callsign.SetModule(c); }
